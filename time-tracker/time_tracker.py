@@ -1,5 +1,6 @@
 import argparse
 from datetime import date
+from pathlib import Path
 
 # TODO!
 # To get the total of time for an activity as I read through the file getting the times
@@ -55,9 +56,12 @@ def getTime():
     Opens the time tracker file and gets all the previous times
     Returns the file time stored as a dictionary
     """
-    file = open(FILENAME, "r")
-    time = getPreviousTimes(file)
-    file.close()
+    try:
+        with open(FILENAME, "r") as file:
+            time = getPreviousTimes(file)
+    except:
+        with open(FILENAME, "x"):
+            time = {}
 
     return time
 
@@ -70,6 +74,7 @@ def initArgParse():
     parser.add_argument("-t", "--total",
                         nargs = "?",
                         help = "Prints the total time of an activity, or all if no argument is passed.")
+
     args = parser.parse_args()
 
     return args
@@ -90,6 +95,17 @@ def activityAlreadyRecorded(activity, keys):
     return activity in keys
 
 
+def addCurrentDate():
+    """
+    Adds current date to time-tracker file
+    """
+    time = getTime()
+    if str(date.today()) not in time.keys():
+        with open(FILENAME, "a") as file:
+            file.write("\n" + "## " + DATE + "\n\n")
+
+
+
 def addNewTime(newTime):
     """
     Takes a list storing the activity as a string and time
@@ -100,7 +116,6 @@ def addNewTime(newTime):
     time = (newTime[1], newTime[2], newTime[3])
     previousTimes = getTime()
 
-    #print(previousTimes[DATE])
     if activityAlreadyRecorded(activity, list(previousTimes[DATE].keys())):
         lastSameActivity = ""
         for i in previousTimes[DATE].keys():
@@ -116,13 +131,17 @@ def addNewTime(newTime):
         file.write("- " + activity + ": " + time[0] + ":" +  time[1] + ":" +  time[2] + "\n")
 
 
-FILENAME = "template-time-tracker.md"
-DATE = "2025-1-21" #date.today()
+FILENAME = str(Path.home()) + "/.timetracker.md"
+DATE = str(date.today()) #"2025-1-21" 
+
+addCurrentDate()
 
 args = initArgParse()
+
 if args.add:
     addNewTime(args.add)
+elif args.total:
+    print("Not implemented")
 
-time = getTime()
-print(time)
-#print(args)
+#time = getTime()
+#print(time)
