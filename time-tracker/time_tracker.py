@@ -1,3 +1,4 @@
+import argparse
 from datetime import date
 
 # TODO!
@@ -42,24 +43,86 @@ def getPreviousTimes(file):
         else:
             line = line.replace("- ", "")
             (activity, leftover) = line.split(":", 1)
+
             times = leftover.split(":", 2)
             time[day][activity] = (int(times[0]), int(times[1]), int(times[2]))
 
     return time
 
 
-def init():
+def getTime():
     """
     Opens the time tracker file and gets all the previous times
     Returns the file time stored as a dictionary
     """
-    file = open("template-time-tracker.md", "r")
+    file = open(FILENAME, "r")
     time = getPreviousTimes(file)
     file.close()
 
     return time
 
 
-time = init()
+def initArgParse():
+    parser = argparse.ArgumentParser(description = "Stores the time given by the user. Can give the total amount of time spent on an activity.")
+    parser.add_argument("-a", "--add", nargs = 4,
+                        help = "Store a new time value",
+                        metavar = ("[ACTIVITY]", "[HOUR]", "[MINUTE]", "[SECOND]"))
+    parser.add_argument("-t", "--total",
+                        nargs = "?",
+                        help = "Prints the total time of an activity, or all if no argument is passed.")
+    args = parser.parse_args()
 
+    return args
+
+
+def activityAlreadyRecorded(activity, keys):
+    """
+    Takes the activity as a string and all activities in a day to compare against
+    Returns true if activity has already been recorded
+    """
+
+    activity = activity.split("-", 1)[0]
+
+    for i in range(len(keys)):
+        j = keys[i].split("-", 1)[0]
+        keys[i] = j
+
+    return activity in keys
+
+
+def addNewTime(newTime):
+    """
+    Takes a list storing the activity as a string and time
+    Makes a new activity for the day or adds to it if it exists
+    """
+
+    activity = newTime[0]
+    time = (newTime[1], newTime[2], newTime[3])
+    previousTimes = getTime()
+
+    #print(previousTimes[DATE])
+    if activityAlreadyRecorded(activity, list(previousTimes[DATE].keys())):
+        lastSameActivity = ""
+        for i in previousTimes[DATE].keys():
+            if activity in i:
+                lastSameActivity = i
+
+        number = lastSameActivity.split("-", 1)[1]
+        activity += "-" + str(int(number) + 1)
+    else:
+        activity += "-1"
+
+    with open(FILENAME, "a") as file:
+        file.write("- " + activity + ": " + time[0] + ":" +  time[1] + ":" +  time[2] + "\n")
+
+
+FILENAME = "template-time-tracker.md"
+DATE = "2025-1-21" #date.today()
+
+args = initArgParse()
+if args.add:
+    addNewTime(args.add)
+
+time = getTime()
 print(time)
+#print(args)
