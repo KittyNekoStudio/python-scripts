@@ -3,10 +3,6 @@ import math
 from datetime import date
 from pathlib import Path
 
-# TODO!
-# To get the total of time for an activity as I read through the file getting the times
-# I should store every unique activity, then look over all days and add the times together
-
 def stripFile(file):
     """
     Takes a file pointer reads it into a list and strips the unwanted strings
