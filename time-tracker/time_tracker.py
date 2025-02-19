@@ -73,7 +73,8 @@ def initArgParse():
                         metavar = ("[ACTIVITY]", "[HOUR]", "[MINUTE]", "[SECOND]"))
     parser.add_argument("-t", "--total",
                         nargs = "?",
-                        help = "Prints the total time of an activity, or all if no argument is passed.")
+                        help = "Prints the total time of an activity, or all if no argument is passed.",
+                        metavar = ("ACTIVITY"))
 
     args = parser.parse_args()
 
