@@ -1,4 +1,5 @@
 import argparse
+import math
 from datetime import date
 from pathlib import Path
 
@@ -73,6 +74,7 @@ def initArgParse():
                         metavar = ("[ACTIVITY]", "[HOUR]", "[MINUTE]", "[SECOND]"))
     parser.add_argument("-t", "--total",
                         nargs = "?",
+                        const = "all",
                         help = "Prints the total time of an activity, or all if no argument is passed.",
                         metavar = ("ACTIVITY"))
 
@@ -105,6 +107,63 @@ def addCurrentDate():
         with open(FILENAME, "a") as file:
             file.write("\n" + "## " + DATE + "\n\n")
 
+
+def getTotalTime(activity):
+    """
+    Takes all the activity and adds up all the time for that activity
+    If no activity is passed activity it returns total time for all activities
+    Returns a tuple of total times
+    """
+    time = getTime()
+    totals = []
+    values = []
+
+    if activity == "all":
+        print("Not implemented")
+        return
+
+    for outer_key in time.keys():
+        for inner_key in time[outer_key].keys():
+            if activity in inner_key:
+                values.append(time[outer_key][inner_key])
+
+    if values == []:
+        print("Activity not found")
+        return
+
+    total = [0, 0, 0]
+    for value in values:
+        total[0] += value[0]
+        total[1] += value[1]
+        total[2] += value[2]
+
+    seconds = 0
+    seconds += total[0] * 3600
+    seconds += total[1] * 60
+    seconds += total[2]
+
+    hours = math.trunc(seconds / 3600)
+    minutes = math.trunc((seconds / 3600 - hours) * 60)
+    seconds = math.trunc((((seconds / 3600 - hours) * 60) - minutes) * 60)
+    total = [hours, minutes, seconds]
+
+    return (activity, total)
+
+
+def printTotalTime(total):
+    """
+    Takes a tuple of total times and the activity and prints them to stdout
+    Returns nothing
+    """
+    if total is None:
+        return
+
+    activity = total[0]
+    hours = total[1][0]
+    minutes = total[1][1]
+    seconds = total[1][2]
+
+    print(activity + ": " + str(hours) + ":" + str(minutes) + ":" + str(seconds))
 
 
 def addNewTime(newTime):
@@ -142,7 +201,8 @@ args = initArgParse()
 if args.add:
     addNewTime(args.add)
 elif args.total:
-    print("Not implemented")
+    total = getTotalTime(args.total)
+    printTotalTime(total)
 
 #time = getTime()
 #print(time)
