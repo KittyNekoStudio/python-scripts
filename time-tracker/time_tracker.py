@@ -73,6 +73,9 @@ def initArgParse():
                         const = "all",
                         help = "Prints the total time of an activity, or all if no argument is passed.",
                         metavar = ("ACTIVITY"))
+    parser.add_argument("-d", "--date", nargs = 2,
+                        help = "Takes in month as number `1-12` and year as full year `2025`. Cannot be used withou `-t` flag. Prints the total time for an activity for a given month of a given year.",
+                        metavar = ("[MONTH]", "[YEAR]"))
 
     args = parser.parse_args()
 
@@ -194,11 +197,18 @@ addCurrentDate()
 
 args = initArgParse()
 
+# TODO! add total time by month
+# TODO! add total time for all activities
+
 if args.add:
     addNewTime(args.add)
 elif args.total:
+    if args.date:
+        print("Date argument not implemented")
     total = getTotalTime(args.total)
     printTotalTime(total)
+elif args.date:
+    print("Cannot be used by itself, please use with `-t` total argument")
 
 #time = getTime()
 #print(time)
